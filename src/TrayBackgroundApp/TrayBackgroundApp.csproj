@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+        <RootNamespace>TryBackgroundApp</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Icons\Bulb.ico" />
+      <Resource Include="Icons\Bulb.ico" />
+      <None Remove="Icons\Computers.ico" />
+      <Resource Include="Icons\Computers.ico" />
+      <None Remove="Icons\Error.ico" />
+      <Resource Include="Icons\Error.ico" />
+      <None Remove="Icons\Inactive.ico" />
+      <Resource Include="Icons\Inactive.ico" />
+      <None Remove="Icons\NetDrives.ico" />
+      <Resource Include="Icons\NetDrives.ico" />
+      <None Remove="Images\Add.png" />
+      <Resource Include="Images\Add.png" />
+      <None Remove="Images\Close.png" />
+      <Resource Include="Images\Close.png" />
+      <None Remove="Images\Info.png" />
+      <Resource Include="Images\Info.png" />
+      <None Remove="Images\Logo.png" />
+      <Resource Include="Images\Logo.png" />
+      <None Remove="Images\Preferences.png" />
+      <Resource Include="Images\Preferences.png" />
+      <None Remove="Images\Remove.png" />
+      <Resource Include="Images\Remove.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\TrayBackgroundWeb\TrayBackgroundWeb.csproj" />
+    </ItemGroup>
+
+</Project>
