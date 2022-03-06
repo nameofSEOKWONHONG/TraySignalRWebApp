@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace TrayBackgroundApp
             InitializeComponent();
             this.Loaded += async (s, e) =>
             {
-                _hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:5001/messageHub")
+                _hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:5004/messageHub")
                     //자동 재연결 - 설정은 href참조
                     //.WithAutomaticReconnect()
                     .Build();
@@ -44,10 +45,20 @@ namespace TrayBackgroundApp
                 
                 _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
                 {
-                    this.Dispatcher.Invoke(() =>
+                    this.Dispatcher.Invoke(async () =>
                     {
-                        var newMessage = $"{user}: {message}";
-                        MessageBox.Show(newMessage);
+                        if (user is not "test") return;
+                        if (message is "GetProcess")
+                        {
+                            var processes = Process.GetProcesses();
+                            var result = string.Join(",", processes.Select(m => m.ProcessName));
+                            await _hubConnection.SendAsync("SendMessage", "test", result);
+                        }
+                        else
+                        {
+                            var newMessage = $"{user}: {message}";
+                            MessageBox.Show(newMessage);
+                        }
                     });
                 });
 

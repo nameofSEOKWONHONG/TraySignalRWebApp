@@ -24,7 +24,11 @@ namespace TrayBackgroundApp
             //서비스앱, winform, wpf, 아발로니아 모두 구현할 수 있다.
             //maui 및 uwp는 관련된 사항을 확인하지 못함.
             _host = Host.CreateDefaultBuilder(e.Args)
-                .ConfigureWebHostDefaults(webHostBuilder => webHostBuilder.UseStartup<TrayBackgroundWeb.Startup>())
+                .ConfigureWebHostDefaults(webHostBuilder =>
+                {
+                    webHostBuilder.UseStartup<TrayBackgroundWeb.Startup>();
+                    webHostBuilder.UseUrls("http://localhost:5003", "https://localhost:5004");
+                })
                 .ConfigureServices(services =>
                 {
                     services.AddTransient<MainWindow>();

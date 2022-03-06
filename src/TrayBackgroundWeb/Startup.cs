@@ -13,6 +13,17 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddControllers();
+        services.AddCors(options =>
+        {
+            options.AddPolicy(name: "MyAllowSpecificOrigins",
+                builder =>
+                {
+                    builder.WithOrigins("https://localhost:7192","https://localhost:5004")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+        });
         services.AddSignalR();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         services.AddEndpointsApiExplorer();
@@ -28,12 +39,14 @@ public class Startup
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        app.UseCors("MyAllowSpecificOrigins");
+        
         app.UseRouting();
-        app.UseCors();
+   
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
-
+        
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapHub<MessageHub>("/messageHub");

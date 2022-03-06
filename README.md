@@ -10,7 +10,7 @@ Wpf로 제작되는 TrayIcon Application입니다.
 Asp.net core web api로 자제 호스팅될 서버 입니다.  
 SingalR을 호스팅하게 되며 웹앱과 연결될 수 있도록 구현 됩니다.
 
-## ServerApplication (구현예정)
+## TrayBackgroundBlazor
 메인 페이지로 사용되면 SingalR을 웹 페이지에서 구현하게 됩니다.  
 정확히는 페이지에서 SignalR 클라이언트를 구현하여 `TrayBackgroundWeb`의 SignalR 서버와 연결됩니다.  
 
