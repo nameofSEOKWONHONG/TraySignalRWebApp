@@ -10,7 +10,10 @@
 
     <ItemGroup>
       <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
+      <PackageReference Include="McMaster.NETCore.Plugins" Version="1.4.0" />
       <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.2" />
+      <PackageReference Include="Serilog" Version="2.11.0" />
+      <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -36,9 +39,19 @@
       <Resource Include="Images\Preferences.png" />
       <None Remove="Images\Remove.png" />
       <Resource Include="Images\Remove.png" />
+      <None Update="plugin\ClassLibrary1.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="plugins\cls1\ClassLibrary1.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="plugins\ClassLibrary1\ClassLibrary1.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\PluginApps\PluginLib\PluginLib.csproj" />
       <ProjectReference Include="..\TrayBackgroundWeb\TrayBackgroundWeb.csproj" />
     </ItemGroup>
 

@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
+using PluginLib;
 
 namespace TrayBackgroundApp
 {
@@ -22,28 +24,28 @@ namespace TrayBackgroundApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        private HubConnection _hubConnection;
+        private readonly HubBase _hubBase;
+        private readonly PluginLoader _pluginLoader;
         /// <summary>
         /// <see href="https://docs.microsoft.com/ko-kr/aspnet/core/signalr/dotnet-client?view=aspnetcore-6.0&tabs=visual-studio"/>
         /// </summary>
-        public MainWindow()
+        public MainWindow(ILogger<MainWindow> logger, HubBase hubBase, PluginLoader pluginLoader)
         {
             InitializeComponent();
+            _hubBase = hubBase;
+            _pluginLoader = pluginLoader;
+            
             this.Loaded += async (s, e) =>
             {
-                _hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:5004/messageHub")
-                    //자동 재연결 - 설정은 href참조
-                    //.WithAutomaticReconnect()
-                    .Build();
-                
-                //수동 재연결
-                _hubConnection.Closed += async (err) =>
+                _pluginLoader.LoadFromDir(new []
                 {
-                    await Task.Delay(new Random().Next(0, 5) * 1000);
-                    await _hubConnection.StartAsync();
-                };
+                    typeof(IPlugin), typeof(IHelloWorldPlugin)
+                });
                 
-                _hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+                var instance = _pluginLoader.ActivateInstance<IPlugin>();
+                var result = instance.Execute();
+                
+                _hubBase.OnReceive<string, string>("ReceiveMessage", (user, message) =>
                 {
                     this.Dispatcher.Invoke(async () =>
                     {
@@ -52,7 +54,10 @@ namespace TrayBackgroundApp
                         {
                             var processes = Process.GetProcesses();
                             var result = string.Join(",", processes.Select(m => m.ProcessName));
-                            await _hubConnection.SendAsync("SendMessage", "test", result);
+                            var instance2 =  _pluginLoader.ActivateInstance<IHelloWorldPlugin>();
+                            var result2 = $"{instance2.Execute()} : {result}";
+                            
+                            await _hubBase.SendAsync("SendMessage", new[]{"test", result2});
                         }
                         else
                         {
@@ -64,7 +69,7 @@ namespace TrayBackgroundApp
 
                 try
                 {
-                    await _hubConnection.StartAsync();
+                    await _hubBase.StartAsync();
                 }
                 catch (Exception err)
                 {
@@ -77,8 +82,7 @@ namespace TrayBackgroundApp
         {
             try
             {
-                await _hubConnection.InvokeAsync("SendMessage", 
-                    "test", InputMessage.Text);
+                await _hubBase.SendAsync("SendMessage", new[]{"test", InputMessage.Text});
             }
             catch (Exception err)
             {
