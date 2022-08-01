@@ -2,18 +2,15 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
+using TrayBackgroundApp;
 
-namespace TrayBackgroundApp;
+namespace TryBackgroundApp.Hubs;
 
-public class HubBase
+public class ChatHubClient : HubBase
 {
-    private HubConnection _hubConnection;
-    private ILogger _logger;
-
-    public HubBase(ILogger<HubBase> logger)
+    public ChatHubClient(ILogger<ChatHubClient> logger) : base(logger)
     {
-        _logger = logger;
-        _hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:5004/messageHub")
+        _hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:5004/chatHub")
             //자동 재연결
             //.WithAutomaticReconnect()
             .Build();    
@@ -26,19 +23,9 @@ public class HubBase
         };
     }
 
-    public async Task StartAsync()
+    public void OnReceive(string methodName, Action<string, string> action)
     {
-        await _hubConnection.StartAsync();
-    }
-
-    public async Task StopAsync()
-    {
-        await _hubConnection.StopAsync();
-    }
-
-    public void OnReceive<T1, T2>(string methodName, Action<T1, T2> action)
-    {
-        _hubConnection.On<T1, T2>(methodName, action);
+        _hubConnection.On<string, string>(methodName, action);
     }
 
     public async Task SendAsync(string methodName, object[] args)

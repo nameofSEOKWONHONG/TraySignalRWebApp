@@ -12,6 +12,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
+using TrayBackgroundWeb;
+using TryBackgroundApp.Hubs;
 
 namespace TrayBackgroundApp
 {
@@ -41,7 +43,8 @@ namespace TrayBackgroundApp
                 {
                     services.AddSingleton<MainWindow>();
                     services.AddSingleton<PluginLoader>();
-                    services.AddSingleton<HubBase>();
+                    services.AddSingleton<ChatHubClient>();
+                    services.AddSingleton<CommandHubClient>();
                 })
                 .Build();
 

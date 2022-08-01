@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace TrayBackgroundWeb;
 
-public class MessageHub : Hub
+public class ChatHub : Hub
 {
     public async Task SendMessage(string user, string message)
     {

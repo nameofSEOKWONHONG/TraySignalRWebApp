@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using PluginLib;
+using TryBackgroundApp.Hubs;
 
 namespace TrayBackgroundApp
 {
@@ -24,15 +25,20 @@ namespace TrayBackgroundApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly HubBase _hubBase;
+        private readonly ChatHubClient _chatHubClient;
+        private readonly CommandHubClient _commandHubClient;
         private readonly PluginLoader _pluginLoader;
         /// <summary>
         /// <see href="https://docs.microsoft.com/ko-kr/aspnet/core/signalr/dotnet-client?view=aspnetcore-6.0&tabs=visual-studio"/>
         /// </summary>
-        public MainWindow(ILogger<MainWindow> logger, HubBase hubBase, PluginLoader pluginLoader)
+        public MainWindow(ILogger<MainWindow> logger, 
+            ChatHubClient chatHubClient, 
+            CommandHubClient commandHubClient, 
+            PluginLoader pluginLoader)
         {
             InitializeComponent();
-            _hubBase = hubBase;
+            _chatHubClient = chatHubClient;
+            _commandHubClient = commandHubClient;
             _pluginLoader = pluginLoader;
             
             this.Loaded += async (s, e) =>
@@ -45,31 +51,32 @@ namespace TrayBackgroundApp
                 var instance = _pluginLoader.ActivateInstance<IPlugin>();
                 var result = instance.Execute();
                 
-                _hubBase.OnReceive<string, string>("ReceiveMessage", (user, message) =>
+                _commandHubClient.OnReceive("ReceiveCommand", (cmd) =>
+                {
+                    if (cmd == "GetProcess")
+                    {
+                        var processes = Process.GetProcesses();
+                        var result = string.Join(",", processes.Select(m => m.ProcessName));
+                        var instance2 =  _pluginLoader.ActivateInstance<IHelloWorldPlugin>();
+                        var result2 = $"{instance2.Execute()} : {result}";
+                            
+                        _commandHubClient.SendCommandAsync("SendCommand", new[]{"test", result2})
+                    }
+                });
+                _chatHubClient.OnReceive("ReceiveMessage", (user, message) =>
                 {
                     this.Dispatcher.Invoke(async () =>
                     {
                         if (user is not "test") return;
-                        if (message is "GetProcess")
-                        {
-                            var processes = Process.GetProcesses();
-                            var result = string.Join(",", processes.Select(m => m.ProcessName));
-                            var instance2 =  _pluginLoader.ActivateInstance<IHelloWorldPlugin>();
-                            var result2 = $"{instance2.Execute()} : {result}";
-                            
-                            await _hubBase.SendAsync("SendMessage", new[]{"test", result2});
-                        }
-                        else
-                        {
-                            var newMessage = $"{user}: {message}";
-                            MessageBox.Show(newMessage);
-                        }
+                        var newMessage = $"{user}: {message}";
+                        MessageBox.Show(newMessage);
                     });
                 });
 
                 try
                 {
-                    await _hubBase.StartAsync();
+                    await _chatHubClient.StartAsync();
+                    await _commandHubClient.StartAsync();
                 }
                 catch (Exception err)
                 {
@@ -82,7 +89,7 @@ namespace TrayBackgroundApp
         {
             try
             {
-                await _hubBase.SendAsync("SendMessage", new[]{"test", InputMessage.Text});
+                await _chatHubClient.SendAsync("SendMessage", new[]{"test", InputMessage.Text});
             }
             catch (Exception err)
             {

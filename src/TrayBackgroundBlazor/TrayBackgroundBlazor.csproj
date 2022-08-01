@@ -15,6 +15,9 @@
 
     <ItemGroup>
       <Reference Include="Microsoft.AspNetCore.SignalR" />
+      <Reference Include="Microsoft.AspNetCore.SignalR.Core, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\6.0.5\Microsoft.AspNetCore.SignalR.Core.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>
